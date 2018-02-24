@@ -9,7 +9,6 @@ import tensorflow as tf
 import random
 from tensorflow.python.framework import ops
 
-get_ipython().magic('matplotlib inline')
 np.random.seed(1)
 
 
