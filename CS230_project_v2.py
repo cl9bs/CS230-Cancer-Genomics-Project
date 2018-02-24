@@ -1,9 +1,4 @@
-
-# coding: utf-8
-
-# In[76]:
-
-
+## import library
 import math
 import numpy as np
 from sklearn import linear_model, metrics
@@ -13,13 +8,9 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import random
 from tensorflow.python.framework import ops
-#from tf_utils import load_dataset, random_mini_batches, convert_to_one_hot, predict
 
 get_ipython().magic('matplotlib inline')
 np.random.seed(1)
-
-
-# In[77]:
 
 
 ##load the data to pandas dataframe
@@ -27,7 +18,7 @@ data = pd.read_table('HiSeqV2')
 print (data.info())
 
 ##visualize the first few rows of the data
-#print (data.iloc[1:8])
+print (data.iloc[1:8])
 ##clean the data
 data_clean = data.select_dtypes(include=['float64'])
 data_clean = data_clean.drop(['TCGA-E2-A15A-06', 'TCGA-BH-A18V-06',  'TCGA-E2-A15K-06',  'TCGA-AC-A6IX-06', 'TCGA-E2-A15E-06', 'TCGA-BH-A1ES-06', 'TCGA-BH-A1FE-06'], axis=1)
@@ -36,10 +27,7 @@ label = [s[-2:] for s in column_names]
 label = [1 if s == '01' else 0 for s in label]
 
 
-
 ##split the data randomly into training and test
-
-
 train_index = random.sample(range(0, len(label)), 800)
 train_x = [data_clean.iloc[:,j] for j in train_index]
 train_y = [label[j] for j in train_index]
@@ -48,10 +36,7 @@ test_y = [label[j] for j in range(0, len(label)) if j not in train_index]
 
 
 
-
 # ## Model 1 : Logistic Regression
-
-# In[79]:
 
 
 ##logistic regression
@@ -71,11 +56,7 @@ print(F1_score)
 
 
 
-
 # ## Model 2: Neural network with TensorFlow
-# 
-
-# In[80]:
 
 
 ## turn the data into the right shape
@@ -89,14 +70,11 @@ train_y = train_y.reshape((train_y.shape[0], 1))
 test_y = test_y.reshape((test_y.shape[0], 1))
 
 
-
 train_x = np.transpose(train_x)
 train_y = np.transpose(train_y)
 test_x = np.transpose(test_x)
 test_y = np.transpose(test_y)
 
-
-# In[81]:
 
 
 ##create placeholders
@@ -112,9 +90,6 @@ def create_placeholders(n_x, n_y):
     X -- placeholder for the data input, of shape [n_x, None] and dtype "float"
     Y -- placeholder for the input labels, of shape [n_y, None] and dtype "float"
     
-    Tips:
-    - You will use None because it let's us be flexible on the number of examples you will for the placeholders.
-      In fact, the number of examples during test/train is different.
     """
 
     X = tf.placeholder(tf.float32, shape=[n_x, None])
@@ -123,15 +98,12 @@ def create_placeholders(n_x, n_y):
     return X, Y
 
 
-# In[82]:
-
+# run placeholder function
 
 X, Y = create_placeholders(20530, 1)
 print ("X = " + str(X))
 print ("Y = " + str(Y))
 
-
-# In[83]:
 
 
 ##initialize_parameters
@@ -149,16 +121,15 @@ def initialize_parameters():
     parameters -- a dictionary of tensors containing W1, b1, W2, b2, W3, b3
     """
     
-    tf.set_random_seed(1)                   # so that your "random" numbers match ours
+    tf.set_random_seed(1)                   # so that our results are reproducible
         
-    ### START CODE HERE ### (approx. 6 lines of code)
+    
     W1 = tf.get_variable("W1", [25, 20530], initializer = tf.contrib.layers.xavier_initializer(seed = 1))
     b1 = tf.get_variable("b1", [25,1], initializer = tf.zeros_initializer())
     W2 = tf.get_variable("W2", [12, 25], initializer = tf.contrib.layers.xavier_initializer(seed = 1))
     b2 = tf.get_variable("b2", [12,1], initializer = tf.zeros_initializer())
     W3 = tf.get_variable("W3", [1, 12], initializer = tf.contrib.layers.xavier_initializer(seed = 1))
     b3 = tf.get_variable("b3", [1,1], initializer = tf.zeros_initializer())
-    ### END CODE HERE ###
 
     parameters = {"W1": W1,
                   "b1": b1,
@@ -170,8 +141,7 @@ def initialize_parameters():
     return parameters
 
 
-# In[84]:
-
+# run initialize_parameters function
 
 tf.reset_default_graph()
 with tf.Session() as sess:
@@ -181,8 +151,6 @@ with tf.Session() as sess:
     print("W2 = " + str(parameters["W2"]))
     print("b2 = " + str(parameters["b2"]))
 
-
-# In[85]:
 
 
 ##forward propagation
@@ -207,19 +175,17 @@ def forward_propagation(X, parameters):
     W3 = parameters['W3']
     b3 = parameters['b3']
     
-    ### START CODE HERE ### (approx. 5 lines)              # Numpy Equivalents:
-    Z1 = tf.add(tf.matmul(W1, X), b1)                                            # Z1 = np.dot(W1, X) + b1
-    A1 = tf.nn.relu(Z1)                                            # A1 = relu(Z1)
-    Z2 = tf.add(tf.matmul(W2, A1), b2)                                              # Z2 = np.dot(W2, a1) + b2
-    A2 = tf.nn.relu(Z2)                                              # A2 = relu(Z2)
-    Z3 = tf.add(tf.matmul(W3, A2), b3)                                               # Z3 = np.dot(W3,Z2) + b3
-    ### END CODE HERE ###
+  
+    Z1 = tf.add(tf.matmul(W1, X), b1)                                            
+    A1 = tf.nn.relu(Z1)                                            
+    Z2 = tf.add(tf.matmul(W2, A1), b2)                                             
+    A2 = tf.nn.relu(Z2)                                              
+    Z3 = tf.add(tf.matmul(W3, A2), b3)                                               
     
     return Z3
 
 
-# In[86]:
-
+# run forward_propagation
 
 tf.reset_default_graph()
 
@@ -228,9 +194,6 @@ with tf.Session() as sess:
     parameters = initialize_parameters()
     Z3 = forward_propagation(X, parameters)
     print("Z3 = " + str(Z3))
-
-
-# In[87]:
 
 
 ##compute cost
@@ -243,26 +206,23 @@ def compute_cost(Z3, Y):
     logits -- vector containing z, output of the last linear unit (before the final sigmoid activation)
     targets -- vector of labels y (1 or 0) 
     
-    Note: What we've been calling "z" and "y" in this class are respectively called "logits" and "labels" 
-    in the TensorFlow documentation. So logits will feed into z, and labels into y. 
     
     Returns:
-    cost -- runs the session of the cost (formula (2))
+    cost -- runs the session of the cost 
     """
      
     
-    # to fit the tensorflow requirement for tf.nn.softmax_cross_entropy_with_logits(...,...)
+    # to fit the tensorflow requirement for tf.nn.weighted_cross_entropy_with_logits(...,...)
     logits = Z3
     targets = Y
     
-    # Use the loss function (approx. 1 line)
+    # Use the loss function, pos_weight is set randomly, will tune later
     cost = tf.nn.weighted_cross_entropy_with_logits(targets = targets, logits = logits, pos_weight = 0.3)
     
     return cost
 
 
-# In[88]:
-
+# run compute_cost
 
 tf.reset_default_graph()
 
@@ -274,8 +234,7 @@ with tf.Session() as sess:
     print("cost = " + str(cost))
 
 
-# In[89]:
-
+# final model
 
 def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.0001, num_iterations = 15000, print_cost = True):
     """
@@ -287,7 +246,6 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.0001, num_iteratio
     X_test -- training set, of shape (input size = 20530, number of training examples = 411)
     Y_test -- test set, of shape (output size = 1, number of test examples = 411)
     learning_rate -- learning rate of the optimization
-    num_epochs -- number of epochs of the optimization loop
     
     Returns:
     parameters -- parameters learnt by the model. They can then be used to predict.
@@ -298,7 +256,6 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.0001, num_iteratio
     seed = 3                                          # to keep consistent results
     (n_x, m) = X_train.shape                          # (n_x: input size, m : number of examples in the train set)
     n_y = Y_train.shape[0]                            # n_y : output size
-    costs = []                                        # To keep track of the cost
     
     # Create Placeholders of shape (n_x, n_y)
     X, Y = create_placeholders(n_x, n_y)
@@ -338,14 +295,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.0001, num_iteratio
         # Run the session to execute the "optimizer" and the "cost"
         _ , batch_cost = sess.run((optimizer, cost), feed_dict = {X: X_train, Y: Y_train})
                  
-#         # plot the cost
-#         plt.plot(np.squeeze(batch_cost))
-#         plt.ylabel('cost')
-#         plt.xlabel('iterations (per tens)')
-#         plt.title("Learning rate =" + str(learning_rate))
-#         plt.show()
 
-        # lets save the parameters in a variable
+        # save the parameters in a variable
         parameters = sess.run(parameters)
         print ("Parameters have been trained!")
 
@@ -371,8 +322,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate = 0.0001, num_iteratio
         return parameters
 
 
-# In[90]:
-
+# train model and output evaluation metrics
 
 parameters = model(train_x, train_y, test_x, test_y)
 
