@@ -1,8 +1,6 @@
 
 # coding: utf-8
 
-# In[1]:
-
 
 ## import library
 import gzip
@@ -23,15 +21,12 @@ import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'inline')
 
 
-# In[ ]:
 
 
 ##load the data to pandas dataframe
 data = pd.read_csv('tcga_RSEM_Hugo_norm_count.gz', compression='gzip', delim_whitespace = True)
 print (data.info())
 
-
-# In[2]:
 
 
 ## create a log file
@@ -46,7 +41,6 @@ from utils import save_dict_to_json
 set_logger(os.path.join('', 'train_various_layers.log'))
 
 
-# In[ ]:
 
 
 ### Feature Reduction with prior knowledge
@@ -57,7 +51,6 @@ print(select_genes.shape)
 logging.info("cell_cycle geneset")
 
 
-# In[ ]:
 
 
 ##load the cell death gene set into a numpy array
@@ -66,8 +59,6 @@ print(select_genes.shape)
 logging.info("cell_death geneset")
 
 
-# In[ ]:
-
 
 ##load the cell adhesion gene set into a numpy array
 select_genes = np.loadtxt('cell_adhesion geneset.txt', dtype = np.dtype('str'), skiprows=2) 
@@ -75,7 +66,6 @@ print(select_genes.shape)
 logging.info("cell_adhesion geneset")
 
 
-# In[ ]:
 
 
 ##combine the 3 gene sets
@@ -84,7 +74,6 @@ print(select_genes.shape)
 logging.info("combined geneset")
 
 
-# In[ ]:
 
 
 ##select only genes in the cell cycle pathway
@@ -93,7 +82,6 @@ print (data_selected.shape)
 #logging.info("cell cycle gene set selected data shape: " + str(data_selected.shape))
 
 
-# In[3]:
 
 
 ##clean the data
@@ -114,7 +102,6 @@ test_x = [data_clean.iloc[:,j] for j in range(0, len(label)) if j not in train_i
 test_y = [label[j] for j in range(0, len(label)) if j not in train_index]
 
 
-# In[ ]:
 
 
 ### Model 1: Logistic regression with k-fold cross-validation and roc curves
@@ -179,7 +166,6 @@ plt.axhline(y = average, color = 'r')
 plt.show()
 
 
-# In[ ]:
 
 
 ### Model 2: Random forest
@@ -198,7 +184,6 @@ plt.show()
 print("Random Forest Training AUC: " + str(training_auc_score_rf))
 
 
-# In[ ]:
 
 
 ### Model 3: Support vector machine (SVM)
@@ -266,8 +251,6 @@ plt.axhline(y = average, color = 'r')
 plt.show()
 
 
-# In[4]:
-
 
 ### Model 4: Neural network with TensorFlow 
 
@@ -286,8 +269,6 @@ test_x = np.transpose(test_x)
 test_y = np.transpose(test_y)
 
 
-# In[ ]:
-
 
 #Autoencoder with Keras
 m = Sequential()
@@ -304,8 +285,6 @@ encoder = Model(m.input, m.get_layer('bottleneck').output)
 Zenc_train = encoder.predict(train_x)  # bottleneck representation
 Zenc_test = encoder.predict(test_x)  # bottleneck representation
 
-
-# In[5]:
 
 
 ##create placeholders
@@ -329,8 +308,6 @@ def create_placeholders(n_x, n_y):
     return X, Y
 
 
-# In[6]:
-
 
 # run placeholder function
 
@@ -339,7 +316,6 @@ print ("X = " + str(X))
 print ("Y = " + str(Y))
 
 
-# In[7]:
 
 
 ##initialize_parameters
@@ -365,16 +341,12 @@ def initialize_parameters(dimensions = [58581, 10, 10, 10, 10, 10, 10, 10, 1]):
     return parameters
 
 
-# In[8]:
-
-
 # run initialize_parameters function
 tf.reset_default_graph()
 # with tf.Session() as sess:
 #     parameters = initialize_parameters([58581, 1000, 500, 500, 250, 1])
 
 
-# In[9]:
 
 
 ##forward propagation
@@ -403,8 +375,6 @@ def forward_propagation(X, parameters):
     return Z
 
 
-# In[10]:
-
 
 # run forward_propagation
 
@@ -417,7 +387,6 @@ with tf.Session() as sess:
     print("Z = " + str(Z))
 
 
-# In[11]:
 
 
 ##compute cost
@@ -446,8 +415,6 @@ def compute_cost(Z, Y, pos_weight = 30):
     return cost
 
 
-# In[12]:
-
 
 # run compute_cost
 
@@ -461,7 +428,6 @@ with tf.Session() as sess:
     print("cost = " + str(cost))
 
 
-# In[13]:
 
 
 # final model
@@ -604,7 +570,6 @@ def model(X_train, Y_train, X_test, Y_test, dimensions = [1000, 500, 500, 250],
 
 
 
-# In[16]:
 
 
 ## model(train_x, train_y, test_x, test_y, first_layer_neurons, second_layer_neurons,
@@ -613,7 +578,7 @@ parameters = model(train_x, train_y, test_x, test_y, [58581, 1000, 500, 500, 250
 logging.info('\n')
 
 
-# In[ ]:
+
 
 
 ### Integrated Gradients
@@ -644,8 +609,6 @@ with DeepExplain(session = sess) as de:
     print('Done')
     print(attributions['Integrated Gradients'])
 
-
-# In[ ]:
 
 
 ## obtained the index of the most important genes
